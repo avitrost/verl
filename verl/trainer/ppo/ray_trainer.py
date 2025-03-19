@@ -969,7 +969,7 @@ class RayPPOTrainer(object):
 
                     # Save the counts to a file
                     job_num = int(os.getenv("JOB_NUM")) + 1
-                    reward_counts_path = f"reward_counts_by_epoch_{job_num}.npy"
+                    reward_counts_path = f"/staging/astrost/explore/rl-3b/reward_counts_by_epoch_{job_num}.npy"
                     np.save(reward_counts_path, reward_counts)
                     print(f"Reward count distribution saved to {reward_counts_path}")
                     return
