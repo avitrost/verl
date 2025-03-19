@@ -777,6 +777,8 @@ class RayPPOTrainer(object):
         # load checkpoint before doing anything
         self._load_checkpoint()
 
+        reward_flag = {}
+
         # perform validation before training
         # currently, we only support validation using the reward_function.
         if self.val_reward_fn is not None and self.config.trainer.get('val_before_train', True):
@@ -796,6 +798,14 @@ class RayPPOTrainer(object):
                 timing_raw = {}
 
                 batch: DataProto = DataProto.from_single_dict(batch_dict)
+
+                if "unique_id" not in batch.non_tensor_batch:
+                    print(batch.non_tensor_batch.items())
+                    raise ValueError("Dataset does not provide a 'dataset_idx' for tracking rewards.")
+                dataset_ids = batch.non_tensor_batch["unique_id"]  # e.g., a NumPy array of indices
+                for id in dataset_ids:
+                    if id not in reward_flag:
+                        reward_flag[id] = 0
 
                 # pop those keys for generation
                 if 'multi_modal_inputs' in batch.non_tensor_batch.keys():
@@ -877,6 +887,18 @@ class RayPPOTrainer(object):
                         reward_tensor = self.reward_fn(batch)
                         batch.batch['token_level_scores'] = reward_tensor
 
+                        ###### ADDED
+
+                        # update reward flag if reward is 1.0 for some token in the sequence
+                        for i, id in enumerate(batch.non_tensor_batch["unique_id"]):
+                            if reward_tensor[i].sum() == 1.0:
+                                if reward_flag[id] == 0:
+                                    reward_flag[id] = epoch + 1
+                            elif reward_tensor[i].sum() >= 0.1:
+                                raise ValueError("Reward is above 0.1 but not 1.0 for some token in the sequence")
+
+                        ######
+
                         # compute rewards. apply_kl_penalty if available
                         if not self.config.actor_rollout_ref.actor.get('use_kl_loss', False):
                             batch, kl_metrics = apply_kl_penalty(batch,
@@ -937,3 +959,6 @@ class RayPPOTrainer(object):
                     return
 
                 self.global_steps += 1
+        # total_true = reward_flag
+        pprint(f"Training complete. Total examples with at least one reward==1.0, with the epoch in which they became true: {reward_flag}")
+
