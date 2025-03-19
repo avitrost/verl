@@ -957,6 +957,20 @@ class RayPPOTrainer(object):
                 if is_last_step:
                     pprint(f'Final validation metrics: {last_val_metrics}')
                     pprint(f"Training complete. Total examples with at least one reward==1.0, with the epoch in which they became true: {reward_flag}")
+                    # Aggregate reward flags into counts by epoch when they became true
+                    num_epochs = self.config.trainer.total_epochs
+                    reward_counts = np.zeros(num_epochs + 1, dtype=int)
+
+                    for epoch_first_reward in reward_flag.values():
+                        reward_counts[epoch_first_reward] += 1
+
+                    # Print the distribution
+                    print(f"Distribution of when examples first received a reward of 1.0 (by epoch): {reward_counts}")
+
+                    # Save the counts to a file
+                    reward_counts_path = os.path.join(self.config.trainer.default_local_dir, "reward_counts_by_epoch.npy")
+                    np.save(reward_counts_path, reward_counts)
+                    print(f"Reward count distribution saved to {reward_counts_path}")
                     return
 
                 self.global_steps += 1
