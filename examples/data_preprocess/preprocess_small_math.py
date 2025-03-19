@@ -8,7 +8,8 @@ if __name__ == '__main__':
     parser.add_argument('--local_dir', default='~/data/math_chunk')
     args = parser.parse_args()
 
-    data_source = 'atrost/MATH-50-chunk-1'
+    job_num = int(os.getenv("JOB_NUM")) + 1
+    data_source = f'atrost/MATH-50-chunk-{job_num}'
     print(f"Loading the {data_source} dataset from huggingface...", flush=True)
     dataset = datasets.load_dataset(data_source, trust_remote_code=True)
 
