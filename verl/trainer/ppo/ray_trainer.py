@@ -968,7 +968,8 @@ class RayPPOTrainer(object):
                     print(f"Distribution of when examples first received a reward of 1.0 (by epoch): {reward_counts}")
 
                     # Save the counts to a file
-                    reward_counts_path = "reward_counts_by_epoch.npy"
+                    job_num = os.getenv("JOB_NUM")
+                    reward_counts_path = f"reward_counts_by_epoch_{job_num}.npy"
                     np.save(reward_counts_path, reward_counts)
                     print(f"Reward count distribution saved to {reward_counts_path}")
                     return
