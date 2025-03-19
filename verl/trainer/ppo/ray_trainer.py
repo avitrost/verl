@@ -956,9 +956,9 @@ class RayPPOTrainer(object):
 
                 if is_last_step:
                     pprint(f'Final validation metrics: {last_val_metrics}')
+                    pprint(f"Training complete. Total examples with at least one reward==1.0, with the epoch in which they became true: {reward_flag}")
                     return
 
                 self.global_steps += 1
-        # total_true = reward_flag
-        pprint(f"Training complete. Total examples with at least one reward==1.0, with the epoch in which they became true: {reward_flag}")
+        
 
