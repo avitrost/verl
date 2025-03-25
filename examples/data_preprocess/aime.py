@@ -55,7 +55,7 @@ if __name__ == '__main__':
             question = question + ' ' + instruction_following
 
             answer = example.pop('Answer')
-            solution = extract_solution(answer)
+            solution = answer # extract_solution(answer)
             data = {
                 "data_source": data_source,
                 "prompt": [{
