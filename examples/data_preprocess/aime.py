@@ -50,11 +50,11 @@ if __name__ == '__main__':
     def make_map_fn(split):
 
         def process_fn(example, idx):
-            question = example.pop('problem')
+            question = example.pop('Problem')
 
             question = question + ' ' + instruction_following
 
-            answer = example.pop('solution')
+            answer = example.pop('Solution')
             solution = extract_solution(answer)
             data = {
                 "data_source": data_source,
