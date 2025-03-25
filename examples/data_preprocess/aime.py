@@ -70,7 +70,8 @@ if __name__ == '__main__':
                 "extra_info": {
                     'split': split,
                     'index': idx
-                }
+                },
+                "unique_id": f"{data_source}-{split}-{idx}"
             }
             return data
 
